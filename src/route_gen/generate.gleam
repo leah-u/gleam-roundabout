@@ -37,21 +37,91 @@ fn generate_helpers_for_contribution(cont: Contribution) {
   generate_route_helper(cont)
 }
 
-fn generate_route_helper(cont: Contribution) {
-  let fn_name =
-    cont.ancestors
-    |> list.map(fn(a) { a.func_name })
-    |> list.append([cont.info.func_name, "route"])
-    |> string.join("_")
+@internal
+pub fn generate_route_helper(cont: Contribution) {
+  let fn_name = full_snake_name(cont.ancestors, cont.info) <> "_route"
 
-  let params = list.flat_map(cont.ancestors, fn(ancestor) { todo })
+  let full_path = list.append(cont.ancestors, [cont.info])
 
-  "pub fn "
-  <> fn_name
-  <> "("
-  // <> params
-  <> ") {\n"
-  //
-  <> "todo\n"
-  <> "}"
+  let params =
+    full_path
+    |> list.flat_map(fn(cont) {
+      cont.segment_params
+      |> list.map(fn(param) {
+        let type_ = case param.kind {
+          types.ParamInt -> "Int"
+          types.ParamStr -> "String"
+        }
+
+        param.namespace <> param.name <> ": " <> type_
+      })
+    })
+    |> string.join(", ")
+
+  let body =
+    full_path
+    |> list.reverse
+    |> list.map(fn(cont) {
+      let params =
+        cont.segment_params
+        |> list.map(fn(param) { param.namespace <> param.name })
+        |> fn(entries) {
+          case list.is_empty(cont.segment_params) {
+            True -> entries
+            False -> list.append(entries, ["_"])
+          }
+        }
+
+      let params = case list.is_empty(params) {
+        True -> ""
+        False -> "(" <> string.join(params, ", ") <> ")"
+      }
+
+      cont.ns_type_name <> cont.type_name <> params
+    })
+    |> string.join(" |> ")
+
+  "pub fn " <> fn_name <> "(" <> params <> ") {\n" <> body <> "\n" <> "}"
 }
+
+@internal
+pub fn full_snake_name(
+  ancestors: List(ContributionInfo),
+  this: ContributionInfo,
+) {
+  ancestors
+  |> list.map(fn(a) { a.snake_name })
+  |> list.append([this.snake_name])
+  |> string.join("_")
+}
+// @internal
+// pub fn namespaced_segment_type_and_params(
+//   namespaces: List(String),
+//   acc: List(ContributionInfo),
+//   items: List(ContributionInfo),
+// ) {
+//   case items {
+//     [first, ..rest] -> {
+//       let namespace =
+//         list.append(namespaces, [first.snake_name])
+//         |> string.join("_")
+
+//       let entries =
+//         list.map(first.segment_params, fn(param) {
+//           case param {
+//             types.ParamInt(name) -> types.ParamInt(namespace <> "_" <> name)
+//             types.ParamStr(name) -> types.ParamStr(namespace <> "_" <> name)
+//           }
+//         })
+
+//       let next_acc = list.append(acc, entries)
+
+//       namespaced_segment_type_and_params(
+//         list.append(namespaces, [first.snake_name]),
+//         next_acc,
+//         rest,
+//       )
+//     }
+//     _ -> acc
+//   }
+// }

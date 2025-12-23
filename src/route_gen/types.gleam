@@ -11,8 +11,25 @@ pub type InputDef {
 }
 
 @internal
+pub type ParamKind {
+  ParamInt
+  ParamStr
+}
+
+@internal
+pub type Param {
+  Param(name: String, namespace: String, kind: ParamKind)
+}
+
+@internal
 pub type ContributionInfo {
-  ContributionInfo(type_name: String, func_name: String)
+  ContributionInfo(
+    snake_name: String,
+    ns_snake_name: String,
+    type_name: String,
+    ns_type_name: String,
+    segment_params: List(Param),
+  )
 }
 
 @internal
