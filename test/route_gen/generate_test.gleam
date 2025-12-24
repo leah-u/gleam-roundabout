@@ -44,7 +44,7 @@ pub fn generate_segments_to_route_test() {
 pub fn generate_route_to_path_test() {
   let assert Ok(root) = parse.parse(routes)
 
-  let assert Ok(actual) = generate.generate_route_to_path(root)
+  let assert Ok(actual) = generate.generate_route_to_path([], root)
 
   actual
   |> birdie.snap(title: "generate_route_to_path")
@@ -53,7 +53,7 @@ pub fn generate_route_to_path_test() {
 pub fn generate_helpers_test() {
   let assert Ok(root) = parse.parse(routes)
 
-  let actual = generate.generate_helpers(root)
+  let actual = generate.generate_helpers([], root)
 
   actual
   |> birdie.snap(title: "generate_helpers")

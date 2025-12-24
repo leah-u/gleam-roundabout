@@ -32,10 +32,10 @@ pub fn main(definitions: List(RouteDef), output_path: String) {
     |> result.unwrap("")
 
   let routes_to_path =
-    generate.generate_route_to_path(root)
+    generate.generate_route_to_path([], root)
     |> result.unwrap("")
 
-  let helpers = generate.generate_helpers(root)
+  let helpers = generate.generate_helpers([], root)
 
   let utils = generate.generate_utils()
 
