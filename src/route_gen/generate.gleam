@@ -93,24 +93,27 @@ fn generate_type_variant_param(segment: types.Segment) {
 }
 
 @internal
-pub fn generate_segments_to_route(node: Node) {
+pub fn generate_segments_to_route(ancestors: List(Node), node: Node) {
   case list.is_empty(node.children) {
     True -> Error(Nil)
     False -> {
+      let sub_type_ancestors = list.prepend(ancestors, node)
+
       let sub_types =
         list.filter_map(node.children, fn(sub) {
-          generate_segments_to_route(sub)
+          generate_segments_to_route(sub_type_ancestors, sub)
         })
         |> string.join("")
 
-      let out = generate_segments_to_route_just_this(node) <> sub_types
+      let out =
+        generate_segments_to_route_just_this(ancestors, node) <> sub_types
 
       Ok(out)
     }
   }
 }
 
-fn generate_segments_to_route_just_this(node: Node) {
+fn generate_segments_to_route_just_this(ancestors: List(Node), node: Node) {
   let segments_to_route_cases =
     node.children
     |> list.map(generate_segments_to_route_case)
@@ -121,7 +124,7 @@ fn generate_segments_to_route_just_this(node: Node) {
     |> list.filter(fn(name) { !string.is_empty(name) })
     |> string.join("_")
 
-  let type_name = get_type_name(node.info)
+  let type_name = get_type_name_v2(ancestors, node.info)
 
   "pub fn "
   <> function_name

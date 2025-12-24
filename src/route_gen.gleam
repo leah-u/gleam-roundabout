@@ -28,7 +28,7 @@ pub fn main(definitions: List(RouteDef), output_path: String) {
     |> result.unwrap("")
 
   let segments_to_route =
-    generate.generate_segments_to_route(root)
+    generate.generate_segments_to_route([], root)
     |> result.unwrap("")
 
   let routes_to_path =

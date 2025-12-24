@@ -35,7 +35,7 @@ pub fn generate_type_test() {
 pub fn generate_segments_to_route_test() {
   let assert Ok(root) = parse.parse(routes)
 
-  let assert Ok(actual) = generate.generate_segments_to_route(root)
+  let assert Ok(actual) = generate.generate_segments_to_route([], root)
 
   actual
   |> birdie.snap(title: "generate_segments_to_route")
