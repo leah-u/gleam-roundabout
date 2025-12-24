@@ -225,12 +225,12 @@ pub fn generate_route_to_path_rec(ancestors: List(Info), node: Node) {
         })
         |> string.join("\n")
 
-      { generate_route_to_path_just_this(ancestors, node) <> sub_types } |> Ok
+      { generate_route_to_path(ancestors, node) <> sub_types } |> Ok
     }
   }
 }
 
-fn generate_route_to_path_just_this(ancestors: List(Info), node: Node) -> String {
+fn generate_route_to_path(ancestors: List(Info), node: Node) -> String {
   let next_ancestors = list.prepend(ancestors, node.info)
 
   let route_to_path_cases =
@@ -316,7 +316,7 @@ pub fn generate_helpers_rec(ancestors: List(Info), node: Node) {
   // Only leaf nodes are generated
   case list.is_empty(node.children) {
     True -> {
-      generate_helpers_just_this(ancestors, node)
+      generate_helpers(ancestors, node)
     }
     False -> {
       let next_ancestors = list.prepend(ancestors, node.info)
@@ -329,8 +329,9 @@ pub fn generate_helpers_rec(ancestors: List(Info), node: Node) {
   }
 }
 
-fn generate_helpers_just_this(ancestors: List(Info), node: Node) {
+fn generate_helpers(ancestors: List(Info), node: Node) {
   generate_route_helper(ancestors, node)
+  <> generate_path_helper(ancestors, node)
 }
 
 fn generate_route_helper(ancestors: List(Info), cont: Node) {
@@ -356,6 +357,47 @@ fn generate_route_helper(ancestors: List(Info), cont: Node) {
   <> "("
   <> function_arguments
   <> ") -> Route {\n"
+  <> body
+  <> "\n"
+  <> "}"
+  <> block_break
+}
+
+fn generate_path_helper(ancestors: List(Info), cont: Node) {
+  let function_name_prefix = get_function_name(ancestors, cont.info)
+  let route_function_name = function_name_prefix <> "_route"
+  let path_function_name = function_name_prefix <> "_path"
+
+  let function_arguments = get_function_arguments(ancestors, [], cont.info)
+
+  let this_function_arguments =
+    function_arguments
+    |> list.filter_map(fn(segment) {
+      use type_name <- require_segment_type_name(segment)
+
+      { justin.snake_case(segment.name) <> ": " <> type_name }
+      |> Ok
+    })
+    |> string.join(", ")
+
+  let callee_arguments =
+    function_arguments
+    |> list.map(fn(segment) { justin.snake_case(segment.name) })
+    |> string.join(", ")
+
+  let body =
+    "  "
+    <> route_function_name
+    <> "("
+    <> callee_arguments
+    <> ")\n"
+    <> "  |> route_to_path"
+
+  "pub fn "
+  <> path_function_name
+  <> "("
+  <> this_function_arguments
+  <> ") -> String {\n"
   <> body
   <> "\n"
   <> "}"
