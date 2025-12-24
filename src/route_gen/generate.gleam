@@ -15,13 +15,18 @@ pub fn generate_imports() {
   <> block_break
 }
 
-/// Generates:
-/// ```
+/// Recursively generates route types like:
+///
+/// ```gleam
 /// pub type Route {
 ///   Home
 ///   Client(client_id: Int, sub: ClientRoute)
 /// }
+///
+/// put type ClientRoute {
+///   ...
 /// ```
+///
 @internal
 pub fn generate_type_rec(ancestors: List(Info), node: Node) {
   case list.is_empty(node.children) {
@@ -54,7 +59,8 @@ fn generate_type(ancestors: List(Info), node: Node) {
   "pub type " <> route_name <> " {\n" <> variants <> "\n}" <> block_break
 }
 
-/// Generate
+/// Generate one type variant e.g.
+///
 /// ```
 ///   User(user_id: Int, sub: UserRoute)
 /// ```
@@ -92,6 +98,18 @@ fn generate_type_variant_param(segment: types.Segment) {
   }
 }
 
+/// Generates the segments to route functions
+///
+/// e.g.
+/// ```
+/// pub fn segments_to_route(segments: List(String)) {
+///   case segments {
+///     [] -> Home |> Ok
+///     ...
+///   }
+/// }
+/// ```
+///
 @internal
 pub fn generate_segments_to_route_rec(ancestors: List(Info), node: Node) {
   case list.is_empty(node.children) {
