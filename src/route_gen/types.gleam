@@ -1,5 +1,3 @@
-import gleam/option
-
 @internal
 pub type Segment {
   Lit(name: String)
@@ -14,7 +12,7 @@ pub type InputDef {
 
 @internal
 pub type Info {
-  Info(ancestor: option.Option(Info), name: String, segments: List(Segment))
+  Info(name: String, segments: List(Segment))
 }
 
 @internal
