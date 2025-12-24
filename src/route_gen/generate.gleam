@@ -163,9 +163,9 @@ fn generate_segments_to_route_case(ancestors: List(Info), node: Node) {
     node.info.segments
     |> list.map(fn(segment) {
       case segment {
-        types.Lit(name) -> "\"" <> name <> "\""
-        types.Str(name) -> name
-        types.Int(name) -> name
+        types.Lit(name) -> "\"" <> justin.snake_case(name) <> "\""
+        types.Str(name) -> justin.snake_case(name)
+        types.Int(name) -> justin.snake_case(name)
       }
     })
     |> string.join(", ")
@@ -182,8 +182,8 @@ fn generate_segments_to_route_case(ancestors: List(Info), node: Node) {
     |> list.filter_map(fn(seg) {
       case seg {
         types.Lit(_) -> Error(Nil)
-        types.Str(name) -> Ok(name)
-        types.Int(name) -> Ok(name)
+        types.Str(name) -> Ok(justin.snake_case(name))
+        types.Int(name) -> Ok(justin.snake_case(name))
       }
     })
     |> fn(params) {
@@ -221,7 +221,13 @@ fn generate_segments_to_route_case(ancestors: List(Info), node: Node) {
         types.Lit(_) -> acc
         types.Str(_) -> acc
         types.Int(name) -> {
-          "with_int(" <> name <> ", fn(" <> name <> ") { " <> acc <> " })"
+          "with_int("
+          <> justin.snake_case(name)
+          <> ", fn("
+          <> justin.snake_case(name)
+          <> ") { "
+          <> acc
+          <> " })"
         }
       }
     })
@@ -279,8 +285,8 @@ fn generate_route_to_path_case(ancestors: List(Info), node: Node) {
     |> list.filter_map(fn(seg) {
       case seg {
         types.Lit(_) -> Error(Nil)
-        types.Str(name) -> Ok(name)
-        types.Int(name) -> Ok(name)
+        types.Str(name) -> Ok(justin.snake_case(name))
+        types.Int(name) -> Ok(justin.snake_case(name))
       }
     })
     |> fn(items) {
@@ -300,8 +306,8 @@ fn generate_route_to_path_case(ancestors: List(Info), node: Node) {
     |> list.map(fn(seg) {
       case seg {
         types.Lit(name) -> "\"" <> name <> "/\""
-        types.Str(name) -> name
-        types.Int(name) -> "int.to_string(" <> name <> ")"
+        types.Str(name) -> justin.snake_case(name)
+        types.Int(name) -> "int.to_string(" <> justin.snake_case(name) <> ")"
       }
     })
     |> string.join(" <> ")
