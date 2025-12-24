@@ -1,8 +1,8 @@
 ---
 version: 1.5.2
-title: generate_route_to_path
+title: generate_route_to_path_rec
 file: ./test/route_gen/generate_test.gleam
-test_name: generate_route_to_path_test
+test_name: generate_route_to_path_rec_test
 ---
 pub fn route_to_path(route: Route) -> String {
   case route {

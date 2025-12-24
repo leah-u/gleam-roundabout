@@ -1,8 +1,8 @@
 ---
 version: 1.5.2
-title: generate_segments_to_route
+title: generate_segments_to_route_rec
 file: ./test/route_gen/generate_test.gleam
-test_name: generate_segments_to_route_test
+test_name: generate_segments_to_route_rec_test
 ---
 pub fn segments_to_route(segments: List(String)) -> Result(Route, Nil) {
   case segments {

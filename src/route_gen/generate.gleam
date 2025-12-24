@@ -24,7 +24,7 @@ pub fn generate_imports() {
 /// }
 /// ```
 @internal
-pub fn generate_type(ancestors: List(Info), node: Node) {
+pub fn generate_type_rec(ancestors: List(Info), node: Node) {
   case list.is_empty(node.children) {
     True -> Error(Nil)
     False -> {
@@ -32,17 +32,17 @@ pub fn generate_type(ancestors: List(Info), node: Node) {
 
       let sub_types =
         node.children
-        |> list.filter_map(fn(node) { generate_type(next_ancestors, node) })
+        |> list.filter_map(fn(node) { generate_type_rec(next_ancestors, node) })
         |> string.join("")
 
-      let out = generate_type_just_this(ancestors, node) <> sub_types
+      let out = generate_type(ancestors, node) <> sub_types
 
       Ok(out)
     }
   }
 }
 
-fn generate_type_just_this(ancestors: List(Info), node: Node) {
+fn generate_type(ancestors: List(Info), node: Node) {
   let next_ancestors = list.prepend(ancestors, node.info)
 
   let variants =
@@ -94,7 +94,7 @@ fn generate_type_variant_param(segment: types.Segment) {
 }
 
 @internal
-pub fn generate_segments_to_route(ancestors: List(Info), node: Node) {
+pub fn generate_segments_to_route_rec(ancestors: List(Info), node: Node) {
   case list.is_empty(node.children) {
     True -> Error(Nil)
     False -> {
@@ -102,19 +102,18 @@ pub fn generate_segments_to_route(ancestors: List(Info), node: Node) {
 
       let sub_types =
         list.filter_map(node.children, fn(sub) {
-          generate_segments_to_route(next_ancestors, sub)
+          generate_segments_to_route_rec(next_ancestors, sub)
         })
         |> string.join("")
 
-      let out =
-        generate_segments_to_route_just_this(ancestors, node) <> sub_types
+      let out = generate_segments_to_route(ancestors, node) <> sub_types
 
       Ok(out)
     }
   }
 }
 
-fn generate_segments_to_route_just_this(ancestors: List(Info), node: Node) {
+fn generate_segments_to_route(ancestors: List(Info), node: Node) {
   let next_ancestors = list.prepend(ancestors, node.info)
 
   let segments_to_route_cases =
@@ -214,7 +213,7 @@ fn generate_segments_to_route_case(ancestors: List(Info), node: Node) {
 }
 
 @internal
-pub fn generate_route_to_path(ancestors: List(Info), node: Node) {
+pub fn generate_route_to_path_rec(ancestors: List(Info), node: Node) {
   case list.is_empty(node.children) {
     True -> Error(Nil)
     False -> {
@@ -222,7 +221,7 @@ pub fn generate_route_to_path(ancestors: List(Info), node: Node) {
 
       let sub_types =
         list.filter_map(node.children, fn(node) {
-          generate_route_to_path(next_ancestors, node)
+          generate_route_to_path_rec(next_ancestors, node)
         })
         |> string.join("\n")
 
@@ -313,7 +312,7 @@ fn generate_route_to_path_case(ancestors: List(Info), node: Node) {
 }
 
 @internal
-pub fn generate_helpers(ancestors: List(Info), node: Node) {
+pub fn generate_helpers_rec(ancestors: List(Info), node: Node) {
   // Only leaf nodes are generated
   case list.is_empty(node.children) {
     True -> {
@@ -323,7 +322,7 @@ pub fn generate_helpers(ancestors: List(Info), node: Node) {
       let next_ancestors = list.prepend(ancestors, node.info)
 
       list.map(node.children, fn(node) {
-        generate_helpers(next_ancestors, node)
+        generate_helpers_rec(next_ancestors, node)
       })
       |> string.join("")
     }

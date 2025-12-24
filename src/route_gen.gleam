@@ -24,18 +24,18 @@ pub fn main(definitions: List(RouteDef), output_path: String) {
   use root <- result.try(parse.parse(definitions_2))
 
   let types =
-    generate.generate_type([], root)
+    generate.generate_type_rec([], root)
     |> result.unwrap("")
 
   let segments_to_route =
-    generate.generate_segments_to_route([], root)
+    generate.generate_segments_to_route_rec([], root)
     |> result.unwrap("")
 
   let routes_to_path =
-    generate.generate_route_to_path([], root)
+    generate.generate_route_to_path_rec([], root)
     |> result.unwrap("")
 
-  let helpers = generate.generate_helpers([], root)
+  let helpers = generate.generate_helpers_rec([], root)
 
   let utils = generate.generate_utils()
 
