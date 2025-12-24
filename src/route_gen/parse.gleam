@@ -16,12 +16,7 @@ pub fn parse(definitions: List(InputDef)) {
   let root =
     types.Node(
       children: contributions,
-      info: types.Info(
-        name: "",
-        ancestor: option.None,
-        segment_params: [],
-        segments: [],
-      ),
+      info: types.Info(name: "", ancestor: option.None, segments: []),
     )
 
   Ok(root)
@@ -72,34 +67,5 @@ pub fn prepare_contribution_info(
   ancestor: option.Option(Info),
   definition: InputDef,
 ) {
-  // let ns_snake_name =
-  //   ancestors
-  //   |> list.map(fn(a) { a.snake_name })
-  //   |> string.join("_")
-
-  // let snake_name = justin.snake_case(definition.name)
-
-  // let ns_type_name =
-  //   ancestors
-  //   |> list.map(fn(a) { a.type_name })
-  //   |> string.join("")
-
-  // let type_name = justin.pascal_case(definition.name)
-
-  let segment_params =
-    definition.path
-    |> list.filter_map(fn(segment) {
-      case segment {
-        types.Lit(_) -> Error(Nil)
-        types.Int(name) -> Ok(types.Param(name, types.ParamInt))
-        types.Str(name) -> Ok(types.Param(name, types.ParamStr))
-      }
-    })
-
-  Info(
-    ancestor:,
-    name: definition.name,
-    segment_params:,
-    segments: definition.path,
-  )
+  Info(ancestor:, name: definition.name, segments: definition.path)
 }

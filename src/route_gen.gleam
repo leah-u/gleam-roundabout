@@ -10,8 +10,6 @@ import route_gen/parse
 import route_gen/types
 import simplifile
 
-const indent = "  "
-
 pub type Segment {
   Lit(val: String)
   Str(name: String)
@@ -41,14 +39,7 @@ pub fn main(definitions: List(RouteDef), output_path: String) {
     definitions
     |> list.map(route_def_to_internal)
 
-  use contributions <- result.try(parse.prepare_contributions(
-    option.None,
-    definitions_2,
-  ))
-
   use root <- result.try(parse.parse(definitions_2))
-
-  use definitions <- result.try(prepare_definitions(definitions))
 
   let types =
     generate.generate_type(root)

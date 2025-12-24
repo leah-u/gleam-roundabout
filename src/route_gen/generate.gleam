@@ -65,7 +65,7 @@ fn generate_type_variant(node: Node) {
   }
 
   let params =
-    node.info.segment_params
+    node.info.segments
     |> list.filter_map(generate_type_variant_param)
     |> fn(items) {
       case sub {
@@ -82,10 +82,11 @@ fn generate_type_variant(node: Node) {
   "  " <> type_name <> params
 }
 
-fn generate_type_variant_param(param: types.Param) {
-  case param.kind {
-    types.ParamInt -> Ok(justin.snake_case(param.name) <> ": Int")
-    types.ParamStr -> Ok(justin.snake_case(param.name) <> ": String")
+fn generate_type_variant_param(segment: types.Segment) {
+  case segment {
+    types.Int(name) -> Ok(justin.snake_case(name) <> ": Int")
+    types.Str(name) -> Ok(justin.snake_case(name) <> ": String")
+    types.Lit(_) -> Error(Nil)
   }
 }
 
@@ -136,9 +137,9 @@ fn generate_segments_to_route_just_this(node: Node) {
 fn generate_segments_to_route_case(node: Node) {
   let matched_params =
     node.info.segments
-    |> list.map(fn(param) {
-      case param {
-        types.Lit(val) -> "\"" <> val <> "\""
+    |> list.map(fn(segment) {
+      case segment {
+        types.Lit(name) -> "\"" <> name <> "\""
         types.Str(name) -> name
         types.Int(name) -> name
       }
@@ -267,7 +268,7 @@ fn generate_route_to_path_case(node: Node) {
     node.info.segments
     |> list.map(fn(seg) {
       case seg {
-        types.Lit(val) -> "\"" <> val <> "/\""
+        types.Lit(name) -> "\"" <> name <> "/\""
         types.Str(name) -> name
         types.Int(name) -> "int.to_string(" <> name <> ")"
       }
@@ -316,13 +317,11 @@ fn generate_route_helper(cont: Node) {
 
   let function_arguments =
     get_function_arguments([], cont.info)
-    |> list.map(fn(param) {
-      let type_ = case param.kind {
-        types.ParamInt -> "Int"
-        types.ParamStr -> "String"
-      }
+    |> list.filter_map(fn(segment) {
+      use type_name <- require_segment_type_name(segment)
 
-      justin.snake_case(param.name) <> ": " <> type_
+      { justin.snake_case(segment.name) <> ": " <> type_name }
+      |> Ok
     })
     |> string.join(", ")
 
@@ -344,23 +343,35 @@ fn generate_route_helper(cont: Node) {
 
 @internal
 pub fn get_function_arguments(
-  acc: List(types.Param),
+  acc: List(types.Segment),
   info: Info,
-) -> List(types.Param) {
+) -> List(types.Segment) {
   // First we want to namespace the given acc with this info
-  let current_params =
+  let current_segments =
     acc
-    |> list.map(fn(param) {
-      types.Param(..param, name: info.name <> "_" <> param.name)
+    |> list.map(fn(segment) {
+      let new_name = info.name <> "_" <> segment.name
+
+      case segment {
+        types.Lit(_) -> types.Lit(new_name)
+        types.Str(_) -> types.Str(new_name)
+        types.Int(_) -> types.Int(new_name)
+      }
     })
 
-  let new_params =
-    info.segment_params
-    |> list.map(fn(param) {
-      types.Param(..param, name: info.name <> "_" <> param.name)
+  let new_segments =
+    info.segments
+    |> list.filter_map(fn(segment) {
+      let new_name = info.name <> "_" <> segment.name
+
+      case segment {
+        types.Lit(_) -> Error(Nil)
+        types.Str(_) -> Ok(types.Str(new_name))
+        types.Int(_) -> Ok(types.Int(new_name))
+      }
     })
 
-  let next_acc = list.append(new_params, current_params)
+  let next_acc = list.append(new_segments, current_segments)
 
   case info.ancestor {
     option.None -> next_acc
@@ -370,8 +381,16 @@ pub fn get_function_arguments(
 
 fn generate_route_helper_body(acc: List(String), info: Info) {
   let params =
-    info.segment_params
-    |> list.map(fn(param) { justin.snake_case(info.name <> "_" <> param.name) })
+    info.segments
+    |> list.filter_map(fn(segment) {
+      let name = justin.snake_case(info.name <> "_" <> segment.name)
+
+      case segment {
+        types.Lit(_) -> Error(Nil)
+        types.Str(_) -> Ok(name)
+        types.Int(_) -> Ok(name)
+      }
+    })
     |> fn(entries) {
       case list.is_empty(acc) {
         True -> entries
@@ -424,6 +443,21 @@ fn get_type_name_do(collected: List(String), info: Info) {
 
 fn get_route_name(info: Info) -> String {
   get_type_name(info) <> "Route"
+}
+
+fn get_segment_type_name(segment: types.Segment) {
+  case segment {
+    types.Int(_) -> Ok("Int")
+    types.Str(_) -> Ok("String")
+    types.Lit(_) -> Error(Nil)
+  }
+}
+
+fn require_segment_type_name(segment: types.Segment, next) {
+  case get_segment_type_name(segment) {
+    Ok(type_name) -> next(type_name)
+    Error(_) -> Error(Nil)
+  }
 }
 
 @internal
