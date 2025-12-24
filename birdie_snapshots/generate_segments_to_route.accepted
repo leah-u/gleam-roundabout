@@ -1,0 +1,36 @@
+---
+version: 1.5.2
+title: generate_segments_to_route
+file: ./test/route_gen/generate_test.gleam
+test_name: generate_segments_to_route_test
+---
+pub fn segments_to_route(segments: List(String)) -> Result(Route, Nil) {
+  case segments {
+    [] -> Home |> Ok
+    ["clients"] -> Clients |> Ok
+    ["clients", clientId, ..rest] -> with_int(clientId, fn(clientId) { client_segments_to_route(rest) |> result.map(fn(sub) {
+Client(clientId, sub)
+        }) })
+    _ -> Error(Nil)
+  }
+}
+
+pub fn client_segments_to_route(segments: List(String)) -> Result(ClientRoute, Nil) {
+  case segments {
+    [] -> ClientShow |> Ok
+    ["orders", ..rest] -> client_orders_segments_to_route(rest) |> result.map(fn(sub) {
+ClientOrders(sub)
+        })
+    _ -> Error(Nil)
+  }
+}
+
+pub fn client_orders_segments_to_route(segments: List(String)) -> Result(ClientOrdersRoute, Nil) {
+  case segments {
+    [] -> ClientOrdersIndex |> Ok
+    [orderId] -> with_int(orderId, fn(orderId) { ClientOrdersShow(orderId) |> Ok })
+    _ -> Error(Nil)
+  }
+}
+
+

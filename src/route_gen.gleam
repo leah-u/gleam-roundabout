@@ -59,12 +59,14 @@ pub fn main(definitions: List(RouteDef), output_path: String) {
     |> result.unwrap("")
 
   let routes_to_path =
-    generate_route_and_subs_to_path("", definitions)
+    generate.generate_route_to_path(root)
     |> result.unwrap("")
 
   let helpers =
     generate.generate_helpers(contributions)
     |> result.unwrap("")
+
+  let utils = generate.generate_utils()
 
   let generated_code =
     generate.generate_imports()
@@ -72,7 +74,7 @@ pub fn main(definitions: List(RouteDef), output_path: String) {
     <> segments_to_route
     <> routes_to_path
     <> helpers
-    <> generate_utils()
+    <> utils
 
   let output_dir = filepath.directory_name(output_path)
   let _ = simplifile.create_directory_all(output_dir)
@@ -153,113 +155,4 @@ fn assert_no_duplicate_param_names(name, segments) {
     True -> Ok(segments)
     False -> Error("Route " <> name <> " has duplicate parameter names")
   }
-}
-
-fn generate_route_and_subs_to_path(
-  namespace: String,
-  definitions: List(ValidRouteDef),
-) {
-  case list.is_empty(definitions) {
-    True -> Error(Nil)
-    False -> {
-      let sub_types =
-        list.filter_map(definitions, fn(def) {
-          generate_route_and_subs_to_path(namespace <> def.name, def.sub)
-        })
-        |> string.join("\n")
-
-      let out =
-        generate_route_to_path(namespace, definitions) <> "\n\n" <> sub_types
-
-      Ok(out)
-    }
-  }
-}
-
-fn generate_route_to_path(namespace: String, definitions: List(ValidRouteDef)) {
-  let route_to_path_cases =
-    definitions
-    |> list.map(generate_route_to_path_case(namespace, _))
-    |> string.join("\n")
-
-  let fn_name = case namespace {
-    "" -> "route_to_path"
-    _ -> justin.snake_case(namespace) <> "_route_to_path"
-  }
-
-  string.trim(
-    "pub fn "
-    <> fn_name
-    <> "(route: "
-    <> namespace
-    <> "Route) -> String {\n"
-    <> indent
-    <> "case route {\n"
-    <> route_to_path_cases
-    <> "\n  }\n"
-    <> "}",
-  )
-}
-
-fn generate_route_to_path_case(namespace: String, def: ValidRouteDef) {
-  let variant_params =
-    def.segments
-    |> list.filter_map(fn(seg) {
-      case seg {
-        ValidLit(_) -> Error(Nil)
-        ValidStr(name) -> Ok(name)
-        ValidInt(name) -> Ok(name)
-      }
-    })
-    |> string.join(", ")
-
-  let variant_params = case list.is_empty(def.sub) {
-    True -> variant_params
-    False -> {
-      variant_params <> ", sub"
-    }
-  }
-
-  let path =
-    def.segments
-    |> list.map(fn(seg) {
-      case seg {
-        ValidLit(val) -> "\"" <> val <> "/\""
-        ValidStr(name) -> name
-        ValidInt(name) -> "int.to_string(" <> name <> ")"
-      }
-    })
-    |> string.join(" <> ")
-
-  let path = case list.is_empty(def.sub) {
-    True -> path
-    False ->
-      path
-      <> " <> "
-      <> justin.snake_case(namespace <> def.name)
-      <> "_route_to_path(sub)"
-  }
-
-  let path = case path {
-    "" -> "\"/\""
-    path -> "\"/\" <> " <> path
-  }
-
-  indent
-  <> indent
-  <> namespace
-  <> def.name
-  <> "("
-  <> variant_params
-  <> ") -> "
-  <> path
-}
-
-fn generate_utils() {
-  "
-fn with_int(str: String, fun) {
-    int.parse(str)
-    |> result.try(fun)
-}
-"
 }

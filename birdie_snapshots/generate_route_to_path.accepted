@@ -1,0 +1,29 @@
+---
+version: 1.5.2
+title: generate_route_to_path
+file: ./test/route_gen/generate_test.gleam
+test_name: generate_route_to_path_test
+---
+pub fn route_to_path(route: Route) -> String {
+  case route {
+    Home -> "/"
+    Clients -> "/" <> "clients/"
+    Client(clientId,sub) -> "/" <> "clients/" <> int.to_string(clientId) <> client_route_to_path(sub)
+  }
+}
+
+pub fn client_route_to_path(route: ClientRoute) -> String {
+  case route {
+    ClientShow -> "/"
+    ClientOrders(sub) -> "/" <> "orders/" <> client_orders_route_to_path(sub)
+  }
+}
+
+pub fn client_orders_route_to_path(route: ClientOrdersRoute) -> String {
+  case route {
+    ClientOrdersIndex -> "/"
+    ClientOrdersShow(orderId) -> "/" <> int.to_string(orderId)
+  }
+}
+
+

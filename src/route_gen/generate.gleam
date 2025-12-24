@@ -8,11 +8,13 @@ import route_gen/types.{type Info, type InputDef, type Node, Info, Node}
 
 const indent = "  "
 
+const block_break = "\n\n"
+
 @internal
 pub fn generate_imports() {
   ["import gleam/int", "import gleam/result"]
   |> string.join("\n")
-  <> "\n\n"
+  <> block_break
 }
 
 /// Generates:
@@ -30,7 +32,7 @@ pub fn generate_type(node: Node) {
       let sub_types =
         node.children
         |> list.filter_map(fn(node) { generate_type(node) })
-        |> string.join("\n")
+        |> string.join("")
 
       let out = generate_type_just_this(node) <> sub_types
 
@@ -47,7 +49,7 @@ fn generate_type_just_this(node: Node) {
 
   let route_name = get_route_name(node.info)
 
-  "pub type " <> route_name <> " {\n" <> variants <> "\n}\n\n"
+  "pub type " <> route_name <> " {\n" <> variants <> "\n}" <> block_break
 }
 
 /// Generate
@@ -127,7 +129,8 @@ fn generate_segments_to_route_just_this(node: Node) {
   <> segments_to_route_cases
   <> "\n    _ -> Error(Nil)\n"
   <> "  }\n"
-  <> "}\n\n"
+  <> "}"
+  <> block_break
 }
 
 fn generate_segments_to_route_case(node: Node) {
@@ -201,6 +204,96 @@ fn generate_segments_to_route_case(node: Node) {
 }
 
 @internal
+pub fn generate_route_to_path(node: Node) {
+  case list.is_empty(node.children) {
+    True -> Error(Nil)
+    False -> {
+      let sub_types =
+        list.filter_map(node.children, fn(node) { generate_route_to_path(node) })
+        |> string.join("\n")
+
+      { generate_route_to_path_just_this(node) <> sub_types } |> Ok
+    }
+  }
+}
+
+fn generate_route_to_path_just_this(node: Node) -> String {
+  let route_to_path_cases =
+    node.children
+    |> list.map(generate_route_to_path_case)
+    |> string.join("\n")
+
+  let function_name =
+    [get_function_name(node.info), "route_to_path"]
+    |> list.filter(fn(name) { !string.is_empty(name) })
+    |> string.join("_")
+
+  "pub fn "
+  <> function_name
+  <> "(route: "
+  <> get_type_name(node.info)
+  <> "Route) -> String {\n"
+  <> indent
+  <> "case route {\n"
+  <> route_to_path_cases
+  <> "\n  }\n"
+  <> "}"
+  <> block_break
+}
+
+fn generate_route_to_path_case(node: Node) {
+  let variant_params =
+    node.info.segments
+    |> list.filter_map(fn(seg) {
+      case seg {
+        types.Lit(_) -> Error(Nil)
+        types.Str(name) -> Ok(name)
+        types.Int(name) -> Ok(name)
+      }
+    })
+    |> fn(items) {
+      case list.is_empty(node.children) {
+        True -> items
+        False -> list.append(items, ["sub"])
+      }
+    }
+
+  let variant_params_str = case list.is_empty(variant_params) {
+    True -> ""
+    False -> "(" <> string.join(variant_params, ",") <> ")"
+  }
+
+  let path =
+    node.info.segments
+    |> list.map(fn(seg) {
+      case seg {
+        types.Lit(val) -> "\"" <> val <> "/\""
+        types.Str(name) -> name
+        types.Int(name) -> "int.to_string(" <> name <> ")"
+      }
+    })
+    |> string.join(" <> ")
+
+  let path = case list.is_empty(node.children) {
+    True -> path
+    False ->
+      path <> " <> " <> get_function_name(node.info) <> "_route_to_path(sub)"
+  }
+
+  let path = case path {
+    "" -> "\"/\""
+    path -> "\"/\" <> " <> path
+  }
+
+  indent
+  <> indent
+  <> get_type_name(node.info)
+  <> variant_params_str
+  <> " -> "
+  <> path
+}
+
+@internal
 pub fn generate_helpers(contributions: List(Node)) {
   // Only leaf should be generated
   case list.is_empty(contributions) {
@@ -265,26 +358,9 @@ pub fn generate_route_helper(cont: Node) {
   <> ") -> Route {\n"
   <> body
   <> "\n"
-  <> "}\n\n"
+  <> "}"
+  <> block_break
 }
-
-// @internal
-// pub fn add_namespace(
-//   namespace: String,
-//   items: List(Node),
-// ) -> List(Node) {
-//   list.map(items, fn(item) {
-//     let info = item.info
-//     let snake_name = justin.snake_case(namespace) <> "_" <> info.name
-//     // let name = namespace <> info.name
-
-//     let info = Info(..info, name: snake_name)
-
-//     let children = add_namespace(snake_name, item.children)
-
-//     Node(..item, info:, children:)
-//   })
-// }
 
 @internal
 pub fn get_function_arguments(
@@ -368,4 +444,14 @@ fn get_type_name_do(collected: List(String), info: Info) {
 
 fn get_route_name(info: Info) -> String {
   get_type_name(info) <> "Route"
+}
+
+@internal
+pub fn generate_utils() {
+  "
+fn with_int(str: String, fun) {
+    int.parse(str)
+    |> result.try(fun)
+}
+"
 }
