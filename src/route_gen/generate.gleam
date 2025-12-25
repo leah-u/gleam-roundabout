@@ -3,6 +3,7 @@ import gleam/option
 import gleam/result
 import gleam/string
 import justin
+import route_gen/constant
 import route_gen/parameter
 import route_gen/types.{type Info, type Node, SegLit, SegParam}
 
@@ -172,7 +173,7 @@ fn generate_segments_to_route_case(ancestors: List(Info), node: Node) {
     node.info.path
     |> list.map(fn(segment) {
       case segment {
-        SegLit(name) -> "\"" <> justin.snake_case(name) <> "\""
+        SegLit(value) -> "\"" <> constant.value(value) <> "\""
         SegParam(param) -> parameter.name(param)
       }
     })
@@ -322,7 +323,7 @@ fn generate_route_to_path_case(ancestors: List(Info), node: Node) {
     node.info.path
     |> list.map(fn(seg) {
       case seg {
-        SegLit(name) -> "\"" <> name <> "/\""
+        SegLit(value) -> "\"" <> constant.value(value) <> "/\""
         SegParam(param) -> {
           let name = parameter.name(param)
 
@@ -466,7 +467,9 @@ pub fn get_function_arguments(
     acc
     |> list.filter_map(fn(segment) {
       case segment {
-        SegLit(name) -> SegLit(info.name <> "_" <> name) |> Ok
+        SegLit(_) -> {
+          Error("")
+        }
         SegParam(param) -> {
           let new_name = info.name <> "_" <> parameter.name(param)
 

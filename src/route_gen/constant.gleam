@@ -1,4 +1,5 @@
 import gleam/regexp
+import gleam/string
 
 @internal
 pub opaque type Constant {
@@ -9,10 +10,17 @@ pub opaque type Constant {
 pub fn new(value: String) -> Result(Constant, String) {
   let assert Ok(re) = regexp.from_string("^[a-zA-Z0-9._~%-]+$")
 
-  case regexp.check(re, value) {
-    True -> Ok(Constant(value))
+  let candidate = string.lowercase(value)
+
+  case regexp.check(re, candidate) {
+    True -> Ok(Constant(candidate))
     False -> Error("Invalid constant value " <> value)
   }
+}
+
+@internal
+pub fn unsafe(value: String) {
+  Constant(value)
 }
 
 @internal

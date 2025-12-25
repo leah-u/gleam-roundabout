@@ -25,6 +25,16 @@ pub fn new(name: String, kind: Kind) -> Result(Parameter, String) {
 }
 
 @internal
+pub fn unsafe(name: String, kind: Kind) {
+  Parameter(name, kind)
+}
+
+@internal
+pub fn unsafe_int(name: String) {
+  Parameter(name, Int)
+}
+
+@internal
 pub fn name(p: Parameter) -> String {
   p.name
 }

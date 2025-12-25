@@ -8,6 +8,8 @@ pub fn constant_valid_test() {
 
   assert new("active-clients") |> result.map(value) == Ok("active-clients")
 
+  assert new("ActiveClients") |> result.map(value) == Ok("activeclients")
+
   assert new("123") |> result.map(value) == Ok("123")
 
   assert new("1.2") |> result.map(value) == Ok("1.2")

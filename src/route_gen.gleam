@@ -3,6 +3,7 @@ import gleam/list
 import gleam/result
 import gleam/set
 import justin
+import route_gen/constant
 import route_gen/generate
 import route_gen/parameter
 import route_gen/types
@@ -106,7 +107,10 @@ fn parse_definition_info(input: Route) {
     input_path
     |> list.try_map(fn(seg) {
       case seg {
-        Lit(val) -> types.SegLit(val) |> Ok
+        Lit(val) -> {
+          constant.new(val)
+          |> result.map(types.SegLit)
+        }
         Str(val) -> {
           parameter.new(val, parameter.Str)
           |> result.map(types.SegParam)

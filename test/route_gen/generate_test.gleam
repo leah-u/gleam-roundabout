@@ -1,23 +1,26 @@
 import birdie
-import gleam/result
+import route_gen/constant
 import route_gen/generate
 import route_gen/parameter
 import route_gen/types.{Info, Node, SegLit, SegParam}
 
 fn root() {
-  use par_client_id <- result.try(parameter.new("clientId", parameter.Int))
-  use par_order_id <- result.try(parameter.new("orderId", parameter.Int))
-
   Node(Info("", []), [
     Node(Info("home", []), []),
-    Node(Info("clients", [SegLit("clients")]), []),
-    Node(Info("client", [SegLit("clients"), SegParam(par_client_id)]), [
-      Node(Info("show", []), []),
-      Node(Info("orders", [SegLit("orders")]), [
-        Node(Info("index", []), []),
-        Node(Info("show", [SegParam(par_order_id)]), []),
+    Node(Info("clients", [SegLit(constant.unsafe("clients"))]), []),
+    Node(
+      Info("client", [
+        SegLit(constant.unsafe("clients")),
+        SegParam(parameter.unsafe_int("client_id")),
       ]),
-    ]),
+      [
+        Node(Info("show", []), []),
+        Node(Info("orders", [SegLit(constant.unsafe("orders"))]), [
+          Node(Info("index", []), []),
+          Node(Info("show", [SegParam(parameter.unsafe_int("order_id"))]), []),
+        ]),
+      ],
+    ),
   ])
   |> Ok
 }

@@ -1,8 +1,9 @@
+import route_gen/constant
 import route_gen/parameter.{type Parameter}
 
 @internal
 pub type Segment {
-  SegLit(name: String)
+  SegLit(value: constant.Constant)
   SegParam(name: Parameter)
 }
 
