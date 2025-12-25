@@ -1,4 +1,5 @@
 import birdie
+import glam/doc
 import roundabout/constant
 import roundabout/generate
 import roundabout/node.{Info, Node, SegLit, SegParam}
@@ -64,6 +65,7 @@ pub fn generate_type_root_test() {
   let actual = generate.generate_type([], root)
 
   actual
+  |> doc.to_string(80)
   |> birdie.snap(title: "generate_type_root")
 }
 
@@ -83,6 +85,7 @@ pub fn generate_type_child_test() {
   let actual = generate.generate_type(ancestors, node)
 
   actual
+  |> doc.to_string(80)
   |> birdie.snap(title: "generate_type_child")
 }
 
@@ -91,6 +94,7 @@ pub fn generate_type_rec_test() {
   let actual = generate.generate_type_rec([], root)
 
   actual
+  |> doc.to_string(80)
   |> birdie.snap(title: "generate_type_rec")
 }
 
@@ -101,12 +105,16 @@ pub fn generate_segments_to_route_root_test() {
   let actual = generate.generate_segments_to_route([], root)
 
   actual
+  |> doc.to_string(80)
   |> birdie.snap(title: "generate_segments_to_route_root")
 }
 
 pub fn generate_segments_to_route_rec_test() {
   let assert Ok(root) = root()
-  let actual = generate.generate_segments_to_route_rec([], root)
+
+  let actual =
+    generate.generate_segments_to_route_rec([], root)
+    |> doc.to_string(80)
 
   actual
   |> birdie.snap(title: "generate_segments_to_route_rec")
@@ -116,7 +124,10 @@ pub fn generate_segments_to_route_rec_test() {
 ///
 pub fn generate_route_to_path_root_test() {
   let assert Ok(root) = root()
-  let actual = generate.generate_route_to_path([], root)
+
+  let actual =
+    generate.generate_route_to_path([], root)
+    |> doc.to_string(80)
 
   actual
   |> birdie.snap(title: "generate_route_to_path_root")
@@ -124,7 +135,10 @@ pub fn generate_route_to_path_root_test() {
 
 pub fn generate_route_to_path_rec_test() {
   let assert Ok(root) = root()
-  let actual = generate.generate_route_to_path_rec([], root)
+
+  let actual =
+    generate.generate_route_to_path_rec([], root)
+    |> doc.to_string(80)
 
   actual
   |> birdie.snap(title: "generate_route_to_path_rec")
@@ -132,7 +146,10 @@ pub fn generate_route_to_path_rec_test() {
 
 pub fn generate_helpers_rec_test() {
   let assert Ok(root) = root()
-  let actual = generate.generate_helpers_rec([], root)
+
+  let actual =
+    generate.generate_helpers_rec([], root)
+    |> doc.to_string(80)
 
   actual
   |> birdie.snap(title: "generate_helpers_rec")

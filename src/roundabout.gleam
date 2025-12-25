@@ -1,4 +1,5 @@
 import filepath
+import glam/doc
 import gleam/list
 import gleam/result
 import gleam/set
@@ -33,13 +34,17 @@ pub fn main(definitions: List(Route), output_path: String) {
 
   let utils = generate.generate_utils()
 
-  let generated_code =
-    generate.generate_imports()
-    <> types
-    <> segments_to_route
-    <> routes_to_path
-    <> helpers
-    <> utils
+  let all =
+    doc.concat([
+      generate.generate_imports(),
+      types,
+      segments_to_route,
+      routes_to_path,
+      helpers,
+      utils,
+    ])
+
+  let generated_code = all |> doc.to_string(80)
 
   let output_dir = filepath.directory_name(output_path)
   let _ = simplifile.create_directory_all(output_dir)
