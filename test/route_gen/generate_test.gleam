@@ -1,8 +1,8 @@
 import birdie
 import route_gen/constant
 import route_gen/generate
+import route_gen/node.{Info, Node, SegLit, SegParam}
 import route_gen/parameter
-import route_gen/types.{Info, Node, SegLit, SegParam}
 
 fn root() {
   Node(Info("", []), [

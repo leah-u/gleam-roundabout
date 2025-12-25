@@ -4,8 +4,8 @@ import gleam/result
 import gleam/string
 import justin
 import route_gen/constant
+import route_gen/node.{type Info, type Node, type Segment, SegLit, SegParam}
 import route_gen/parameter
-import route_gen/types.{type Info, type Node, SegLit, SegParam}
 
 const indent = "  "
 
@@ -94,7 +94,7 @@ fn generate_type_variant(ancestors: List(Info), node: Node) {
   "  " <> type_name <> params
 }
 
-fn generate_type_variant_param(segment: types.Segment) {
+fn generate_type_variant_param(segment: Segment) {
   case segment {
     SegParam(param) -> Ok(parameter.full(param))
     SegLit(_) -> Error(Nil)
@@ -459,9 +459,9 @@ fn generate_path_helper(ancestors: List(Info), cont: Node) {
 @internal
 pub fn get_function_arguments(
   ancestors: List(Info),
-  acc: List(types.Segment),
+  acc: List(Segment),
   info: Info,
-) -> List(types.Segment) {
+) -> List(Segment) {
   // First we want to namespace the given acc with this info
   let current_segments =
     acc
@@ -600,14 +600,14 @@ fn get_route_name(ancestors: List(Info), info: Info) -> String {
   get_type_name(ancestors, info) <> "Route"
 }
 
-fn get_segment_type_name(segment: types.Segment) {
+fn get_segment_type_name(segment: Segment) {
   case segment {
     SegLit(_) -> Error(Nil)
     SegParam(param) -> parameter.type_name(param) |> Ok
   }
 }
 
-fn require_segment_type_name(segment: types.Segment, next) {
+fn require_segment_type_name(segment: Segment, next) {
   case get_segment_type_name(segment) {
     Ok(type_name) -> next(type_name)
     Error(_) -> Error(Nil)

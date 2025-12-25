@@ -2,8 +2,8 @@ import gleam/result
 import gleeunit
 import route_gen.{Int, Lit, Route, Str}
 import route_gen/constant
+import route_gen/node.{Info, Node, SegLit, SegParam}
 import route_gen/parameter
-import route_gen/types.{Info, Node, SegLit, SegParam}
 
 pub fn main() -> Nil {
   gleeunit.main()
