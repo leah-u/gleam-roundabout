@@ -1,0 +1,10 @@
+---
+version: 1.5.2
+title: generate_imports
+file: ./test/roundabout/generate_test.gleam
+test_name: generate_imports_test
+---
+import gleam/int
+import gleam/result
+
+

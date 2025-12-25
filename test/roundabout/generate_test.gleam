@@ -58,6 +58,14 @@ pub fn get_function_name_test() {
   assert actual == "client_simple_user"
 }
 
+pub fn generate_imports_test() {
+  let actual = generate.generate_imports()
+
+  actual
+  |> doc.to_string(80)
+  |> birdie.snap(title: "generate_imports")
+}
+
 /// generate_type
 ///
 pub fn generate_type_root_test() {
