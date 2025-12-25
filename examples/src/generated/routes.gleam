@@ -20,11 +20,20 @@ pub fn segments_to_route(segments: List(String)) -> Result(Route, Nil) {
     [] -> Home |> Ok
     ["profile", id] -> Profile(id) |> Ok
     ["my-orders"] -> MyOrders |> Ok
-    ["orders", id] -> with_int(id, fn(id) { Order(id) |> Ok })
-    ["posts", post_id, "comments", comment_id] -> with_int(comment_id, fn(comment_id) { with_int(post_id, fn(post_id) { Comment(post_id, comment_id) |> Ok }) })
-    ["users", id, ..rest] -> with_int(id, fn(id) { user_segments_to_route(rest) |> result.map(fn(sub) {
-User(id, sub)
-        }) })
+    ["orders", id] -> with_int(id, fn(id) { 
+        Order(id) |> Ok
+       })
+    ["posts", post_id, "comments", comment_id] ->
+      with_int(comment_id, fn(comment_id) { 
+        with_int(post_id, fn(post_id) { 
+          Comment(post_id, comment_id) |> Ok
+         })
+       })
+    ["users", id, ..rest] -> with_int(id, fn(id) { 
+        user_segments_to_route(rest) |> result.map(fn(sub) {
+          User(id, sub)
+        })
+       })
     _ -> Error(Nil)
   }
 }
@@ -43,8 +52,12 @@ pub fn route_to_path(route: Route) -> String {
     Profile(id) -> "/" <> "profile/" <> id
     MyOrders -> "/" <> "my-orders/"
     Order(id) -> "/" <> "orders/" <> int.to_string(id)
-    Comment(post_id, comment_id) -> "/" <> "posts/" <> int.to_string(post_id) <> "comments/" <> int.to_string(comment_id)
-    User(id, sub) -> "/" <> "users/" <> int.to_string(id) <> user_route_to_path(sub)
+    Comment(post_id, comment_id) ->
+      "/"
+      <> "posts/"
+      <> int.to_string(post_id) <> "comments/" <> int.to_string(comment_id)
+    User(id, sub) ->
+      "/" <> "users/" <> int.to_string(id) <> user_route_to_path(sub)
   }
 }
 
@@ -60,8 +73,7 @@ pub fn home_route() -> Route {
 }
 
 pub fn home_path() -> String {
-  home_route()
-  |> route_to_path
+  home_route() |> route_to_path
 }
 
 pub fn profile_route(profile_id: String) -> Route {
@@ -69,8 +81,7 @@ pub fn profile_route(profile_id: String) -> Route {
 }
 
 pub fn profile_path(profile_id: String) -> String {
-  profile_route(profile_id)
-  |> route_to_path
+  profile_route(profile_id) |> route_to_path
 }
 
 pub fn my_orders_route() -> Route {
@@ -78,8 +89,7 @@ pub fn my_orders_route() -> Route {
 }
 
 pub fn my_orders_path() -> String {
-  my_orders_route()
-  |> route_to_path
+  my_orders_route() |> route_to_path
 }
 
 pub fn order_route(order_id: Int) -> Route {
@@ -87,8 +97,7 @@ pub fn order_route(order_id: Int) -> Route {
 }
 
 pub fn order_path(order_id: Int) -> String {
-  order_route(order_id)
-  |> route_to_path
+  order_route(order_id) |> route_to_path
 }
 
 pub fn comment_route(comment_post_id: Int, comment_comment_id: Int) -> Route {
@@ -96,28 +105,23 @@ pub fn comment_route(comment_post_id: Int, comment_comment_id: Int) -> Route {
 }
 
 pub fn comment_path(comment_post_id: Int, comment_comment_id: Int) -> String {
-  comment_route(comment_post_id, comment_comment_id)
-  |> route_to_path
+  comment_route(comment_post_id, comment_comment_id) |> route_to_path
 }
 
 pub fn user_show_route(user_id: Int) -> Route {
-  UserShow
-  |> User(user_id, _)
+  UserShow |> User(user_id, _)
 }
 
 pub fn user_show_path(user_id: Int) -> String {
-  user_show_route(user_id)
-  |> route_to_path
+  user_show_route(user_id) |> route_to_path
 }
 
 pub fn user_new_route(user_id: Int) -> Route {
-  UserNew
-  |> User(user_id, _)
+  UserNew |> User(user_id, _)
 }
 
 pub fn user_new_path(user_id: Int) -> String {
-  user_new_route(user_id)
-  |> route_to_path
+  user_new_route(user_id) |> route_to_path
 }
 
 

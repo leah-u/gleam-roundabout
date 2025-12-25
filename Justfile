@@ -1,7 +1,7 @@
-example_gen:
+example-gen:
     cd examples && gleam run -m gen_routes
 
-example_check:
+example-check:
     cd examples && gleam check
 
 snaps:
