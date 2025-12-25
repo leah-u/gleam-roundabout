@@ -76,7 +76,7 @@ Call this using:
 gleam run -m gen_routes
 ```
 
-Further documentation can be found at <https://hexdocs.pm/route_gen>.
+See example output at `examples/src/generated/routes.gleam`
 
 ## The order is important
 
@@ -90,6 +90,10 @@ If you have routes like:
 ```
 The first one will always match over the second one, make sure that literal routes are first.
 
+---
+
+Further documentation can be found at <https://hexdocs.pm/route_gen>.
+
 ## TODO
 
 - Allow segments to be kebab case
@@ -97,5 +101,6 @@ The first one will always match over the second one, make sure that literal rout
 - Add a valid segment type
 - Add a valid argument type
 - Remove pub from nested functions
+- Format better
 - Generate example when pushing
 - Add test to ensure example type checks
