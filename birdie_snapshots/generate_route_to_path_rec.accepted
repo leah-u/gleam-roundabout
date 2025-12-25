@@ -12,14 +12,14 @@ pub fn route_to_path(route: Route) -> String {
   }
 }
 
-pub fn client_route_to_path(route: ClientRoute) -> String {
+fn client_route_to_path(route: ClientRoute) -> String {
   case route {
     ClientShow -> "/"
     ClientOrders(sub) -> "/" <> "orders/" <> client_orders_route_to_path(sub)
   }
 }
 
-pub fn client_orders_route_to_path(route: ClientOrdersRoute) -> String {
+fn client_orders_route_to_path(route: ClientOrdersRoute) -> String {
   case route {
     ClientOrdersIndex -> "/"
     ClientOrdersShow(order_id) -> "/" <> int.to_string(order_id)

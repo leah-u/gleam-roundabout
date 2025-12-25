@@ -100,7 +100,6 @@ Further documentation can be found at <https://hexdocs.pm/route_gen>.
 - Handle segments with spaces
 - Add a valid segment type
 - Add a valid argument type
-- Remove pub from nested functions
 - Format better
 - Generate example when pushing
 - Add test to ensure example type checks

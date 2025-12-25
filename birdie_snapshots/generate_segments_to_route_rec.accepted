@@ -15,7 +15,7 @@ Client(client_id, sub)
   }
 }
 
-pub fn client_segments_to_route(segments: List(String)) -> Result(ClientRoute, Nil) {
+fn client_segments_to_route(segments: List(String)) -> Result(ClientRoute, Nil) {
   case segments {
     [] -> ClientShow |> Ok
     ["orders", ..rest] -> client_orders_segments_to_route(rest) |> result.map(fn(sub) {
@@ -25,7 +25,7 @@ ClientOrders(sub)
   }
 }
 
-pub fn client_orders_segments_to_route(segments: List(String)) -> Result(ClientOrdersRoute, Nil) {
+fn client_orders_segments_to_route(segments: List(String)) -> Result(ClientOrdersRoute, Nil) {
   case segments {
     [] -> ClientOrdersIndex |> Ok
     [order_id] -> with_int(order_id, fn(order_id) { ClientOrdersShow(order_id) |> Ok })

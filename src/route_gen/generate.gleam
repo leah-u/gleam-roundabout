@@ -147,7 +147,13 @@ pub fn generate_segments_to_route(ancestors: List(Info), node: Node) {
 
   let type_name = get_type_name(ancestors, node.info)
 
-  "pub fn "
+  let pub_prefix = case list.is_empty(ancestors) {
+    True -> "pub "
+    False -> ""
+  }
+
+  pub_prefix
+  <> "fn "
   <> function_name
   <> "(segments: List(String)) -> Result("
   <> type_name
@@ -269,7 +275,13 @@ pub fn generate_route_to_path(ancestors: List(Info), node: Node) -> String {
     |> list.filter(fn(name) { !string.is_empty(name) })
     |> string.join("_")
 
-  "pub fn "
+  let pub_prefix = case list.is_empty(ancestors) {
+    True -> "pub "
+    False -> ""
+  }
+
+  pub_prefix
+  <> "fn "
   <> function_name
   <> "(route: "
   <> get_type_name(ancestors, node.info)
