@@ -1,29 +1,27 @@
 import birdie
-import route_gen.{Int, Lit, Route}
 import route_gen/generate
-import route_gen/types.{Info, Node, SegInt}
+import route_gen/types.{Info, Node, SegInt, SegLit}
 
-const routes = [
-  Route(name: "home", path: [], sub: []),
-  Route(name: "clients", path: [Lit("clients")], sub: []),
-  Route(
-    name: "client",
-    path: [Lit("clients"), Int("clientId")],
-    sub: [
-      Route(name: "show", path: [], sub: []),
-      Route(
-        name: "orders",
-        path: [Lit("orders")],
-        sub: [
-          Route(name: "index", path: [], sub: []),
-          Route(name: "show", path: [Int("orderId")], sub: []),
-        ],
-      ),
-    ],
-  ),
-]
-
-const routes2 = [Node(info: Info(name: "name", path: []), sub: [])]
+const root = Node(
+  Info("", []),
+  [
+    Node(Info("home", []), []),
+    Node(Info("clients", [SegLit("clients")]), []),
+    Node(
+      Info("client", [SegLit("clients"), SegInt("clientId")]),
+      [
+        Node(Info("show", []), []),
+        Node(
+          Info("orders", [SegLit("orders")]),
+          [
+            Node(Info("index", []), []),
+            Node(Info("show", [SegInt("orderId")]), []),
+          ],
+        ),
+      ],
+    ),
+  ],
+)
 
 pub fn get_type_name_test() {
   let actual =
@@ -48,8 +46,6 @@ pub fn get_function_name_test() {
 /// generate_type
 ///
 pub fn generate_type_root_test() {
-  let assert Ok(root) = route_gen.parse(routes)
-
   let actual = generate.generate_type([], root)
 
   actual
@@ -71,8 +67,6 @@ pub fn generate_type_child_test() {
 }
 
 pub fn generate_type_rec_test() {
-  let assert Ok(root) = route_gen.parse(routes)
-
   let assert Ok(actual) = generate.generate_type_rec([], root)
 
   actual
@@ -82,8 +76,6 @@ pub fn generate_type_rec_test() {
 /// generate_segments_to_route
 ///
 pub fn generate_segments_to_route_root_test() {
-  let assert Ok(root) = route_gen.parse(routes)
-
   let actual = generate.generate_segments_to_route([], root)
 
   actual
@@ -91,8 +83,6 @@ pub fn generate_segments_to_route_root_test() {
 }
 
 pub fn generate_segments_to_route_rec_test() {
-  let assert Ok(root) = route_gen.parse(routes)
-
   let assert Ok(actual) = generate.generate_segments_to_route_rec([], root)
 
   actual
@@ -102,8 +92,6 @@ pub fn generate_segments_to_route_rec_test() {
 /// generate_route_to_path
 ///
 pub fn generate_route_to_path_root_test() {
-  let assert Ok(root) = route_gen.parse(routes)
-
   let actual = generate.generate_route_to_path([], root)
 
   actual
@@ -111,8 +99,6 @@ pub fn generate_route_to_path_root_test() {
 }
 
 pub fn generate_route_to_path_rec_test() {
-  let assert Ok(root) = route_gen.parse(routes)
-
   let assert Ok(actual) = generate.generate_route_to_path_rec([], root)
 
   actual
@@ -120,8 +106,6 @@ pub fn generate_route_to_path_rec_test() {
 }
 
 pub fn generate_helpers_rec_test() {
-  let assert Ok(root) = route_gen.parse(routes)
-
   let actual = generate.generate_helpers_rec([], root)
 
   actual

@@ -12,5 +12,5 @@ pub type Info {
 
 @internal
 pub type Node {
-  Node(sub: List(Node), info: Info)
+  Node(info: Info, sub: List(Node))
 }
