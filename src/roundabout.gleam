@@ -11,6 +11,7 @@ import roundabout/internal/constant
 import roundabout/internal/generate_helpers
 import roundabout/internal/generate_other
 import roundabout/internal/generate_route_to_path
+import roundabout/internal/generate_route_to_template
 import roundabout/internal/generate_segments_to_route
 import roundabout/internal/generate_types
 import roundabout/internal/node
@@ -150,6 +151,9 @@ pub fn generate(definitions: List(Route), output_path: String) {
   let routes_to_path =
     generate_route_to_path.generate_route_to_path_rec([], root)
 
+  let routes_to_template =
+    generate_route_to_template.generate_route_to_template_rec([], root)
+
   let helpers = generate_helpers.generate_helpers_rec([], root)
 
   let utils = generate_other.generate_utils()
@@ -161,6 +165,7 @@ pub fn generate(definitions: List(Route), output_path: String) {
       types,
       segments_to_route,
       routes_to_path,
+      routes_to_template,
       helpers,
       utils,
     ])

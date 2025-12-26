@@ -73,6 +73,28 @@ fn user_route_to_path(route: UserRoute) -> String {
   }
 }
 
+pub fn route_to_template(route: Route) -> String {
+  case route {
+    Comment(..) ->
+      "/"
+      <> "posts"
+      <> "/" <> "{post_id}" <> "/" <> "comments" <> "/" <> "{comment_id}"
+    Home -> "/"
+    MyOrders -> "/" <> "my-orders"
+    Order(..) -> "/" <> "orders" <> "/" <> "{id}"
+    Profile(..) -> "/" <> "profile" <> "/" <> "{id}"
+    User(sub:, ..) ->
+      "/" <> "users" <> "/" <> "{id}" <> user_route_to_template(sub)
+  }
+}
+
+fn user_route_to_template(route: UserRoute) -> String {
+  case route {
+    UserActivate -> "/" <> "new"
+    UserShow -> ""
+  }
+}
+
 pub fn comment_route(comment_post_id: Int, comment_comment_id: Int) -> Route {
   Comment(comment_post_id, comment_comment_id)
 }
