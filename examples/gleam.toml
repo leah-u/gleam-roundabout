@@ -4,7 +4,7 @@ description = "Route generation example"
 
 [tools.roundabout."examples/generated/routes"]
 home = ""
-profile = "profile/{id:String}"
+profile = "profile/{id}"
 my_orders = "my-orders"
 order = "orders/{id:Int}"
 comment = "posts/{postId:Int}/comments/{commentId:Int}"

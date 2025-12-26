@@ -67,8 +67,6 @@ pub fn main() {
 
   list.each(routers, fn(router) {
     let #(output_path, definitions) = router
-    echo output_path
-    echo definitions
     let assert Ok(_) = generate(definitions, output_path)
   })
 }
@@ -79,17 +77,12 @@ fn parse_path(path: String) -> Result(List(Segment), Nil) {
   string.split(path, "/")
   |> list.try_map(fn(segment) {
     case segment {
-      "{" <> rest -> {
-        case string.split(rest, ":") {
-          [name, type_] -> {
-            use <- bool.guard(
-              when: !string.ends_with(type_, "}"),
-              return: Error(Nil),
-            )
-            let type_ = string.drop_end(type_, 1)
-            case type_ {
-              "String" -> Ok(Str(name))
-              "Int" -> Ok(Int(name))
+      "{" <> segment -> {
+        case string.split(segment, "}") {
+          [segment, ""] -> {
+            case string.split(segment, ":") {
+              [name] | [name, "String"] -> Ok(Str(name))
+              [name, "Int"] -> Ok(Int(name))
               _ -> Error(Nil)
             }
           }
