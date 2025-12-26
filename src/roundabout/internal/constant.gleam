@@ -1,12 +1,10 @@
 import gleam/regexp
 import gleam/string
 
-@internal
 pub opaque type Constant {
   Constant(value: String)
 }
 
-@internal
 pub fn new(value: String) -> Result(Constant, String) {
   let assert Ok(re) = regexp.from_string("^[a-zA-Z0-9._~%-]+$")
 
@@ -18,12 +16,10 @@ pub fn new(value: String) -> Result(Constant, String) {
   }
 }
 
-@internal
 pub fn unsafe(value: String) {
   Constant(value)
 }
 
-@internal
 pub fn value(input: Constant) -> String {
   input.value
 }

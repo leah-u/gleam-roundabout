@@ -1,7 +1,7 @@
 import birdie
 import glam/doc
-import roundabout/fixtures
-import roundabout/generate_segments_to_route
+import roundabout/internal/fixtures
+import roundabout/internal/generate_segments_to_route
 
 /// generate_segments_to_route
 ///

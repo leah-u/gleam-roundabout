@@ -1,7 +1,7 @@
 import birdie
 import glam/doc
-import roundabout/fixtures
-import roundabout/generate_helpers
+import roundabout/internal/fixtures
+import roundabout/internal/generate_helpers
 
 pub fn generate_helpers_rec_test() {
   let root = fixtures.fixture_root()

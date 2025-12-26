@@ -4,15 +4,15 @@ import gleam/list
 import gleam/result
 import gleam/set
 import justin
-import roundabout/constant
-import roundabout/generate_helpers
-import roundabout/generate_other
-import roundabout/generate_route_to_path
-import roundabout/generate_segments_to_route
-import roundabout/generate_types
-import roundabout/node
-import roundabout/parameter
-import roundabout/type_name
+import roundabout/internal/constant
+import roundabout/internal/generate_helpers
+import roundabout/internal/generate_other
+import roundabout/internal/generate_route_to_path
+import roundabout/internal/generate_segments_to_route
+import roundabout/internal/generate_types
+import roundabout/internal/node
+import roundabout/internal/parameter
+import roundabout/internal/type_name
 import simplifile
 
 pub type Segment {

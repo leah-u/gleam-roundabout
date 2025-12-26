@@ -1,6 +1,6 @@
-import roundabout/common
-import roundabout/node.{Info}
-import roundabout/type_name
+import roundabout/internal/common
+import roundabout/internal/node.{Info}
+import roundabout/internal/type_name
 
 pub fn get_type_name_test() {
   let actual =

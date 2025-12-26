@@ -1,6 +1,6 @@
 import birdie
 import glam/doc
-import roundabout/generate_other
+import roundabout/internal/generate_other
 
 pub fn generate_imports_test() {
   let actual = generate_other.generate_imports()

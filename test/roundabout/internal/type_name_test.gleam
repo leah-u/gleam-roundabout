@@ -1,5 +1,5 @@
 import gleam/result
-import roundabout/type_name.{name, new, snake}
+import roundabout/internal/type_name.{name, new, snake}
 
 pub fn valid_test() {
   assert new("ActiveClients") |> result.map(name) == Ok("ActiveClients")

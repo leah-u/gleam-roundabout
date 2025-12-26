@@ -1,12 +1,10 @@
 import gleam/regexp
 import justin
 
-@internal
 pub opaque type TypeName {
   TypeName(name: String)
 }
 
-@internal
 pub fn new(name: String) -> Result(TypeName, String) {
   let assert Ok(re) = regexp.from_string("^[A-Z][a-zA-Z0-9]*$")
 
@@ -18,17 +16,14 @@ pub fn new(name: String) -> Result(TypeName, String) {
   }
 }
 
-@internal
 pub fn unsafe(value: String) {
   TypeName(value)
 }
 
-@internal
 pub fn name(input: TypeName) -> String {
   input.name
 }
 
-@internal
 pub fn snake(input: TypeName) -> String {
   input.name |> justin.snake_case
 }

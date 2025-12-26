@@ -1,6 +1,5 @@
 import glam/doc.{type Document}
 
-@internal
 pub fn generate_header() {
   "//// This module was generated using roundabout.
 ////
@@ -9,7 +8,6 @@ pub fn generate_header() {
   |> doc.append(doc.line)
 }
 
-@internal
 pub fn generate_imports() -> Document {
   [
     doc.from_string("import gleam/int"),
@@ -20,7 +18,6 @@ pub fn generate_imports() -> Document {
   |> doc.concat
 }
 
-@internal
 pub fn generate_utils() -> Document {
   "
 fn with_int(str: String, fun) {

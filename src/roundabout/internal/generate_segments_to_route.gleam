@@ -1,10 +1,10 @@
 import glam/doc.{type Document}
 import gleam/list
 import gleam/string
-import roundabout/common.{case_arrow, double_quote, pipe_join}
-import roundabout/constant
-import roundabout/node.{type Info, type Node, SegLit, SegParam}
-import roundabout/parameter
+import roundabout/internal/common.{case_arrow, double_quote, pipe_join}
+import roundabout/internal/constant
+import roundabout/internal/node.{type Info, type Node, SegLit, SegParam}
+import roundabout/internal/parameter
 
 /// Generates the segments to route functions
 ///
@@ -18,7 +18,6 @@ import roundabout/parameter
 /// }
 /// ```
 ///
-@internal
 pub fn generate_segments_to_route_rec(
   ancestors: List(Info),
   node: Node,
@@ -40,7 +39,6 @@ pub fn generate_segments_to_route_rec(
   }
 }
 
-@internal
 pub fn generate_segments_to_route(ancestors: List(Info), node: Node) -> Document {
   let next_ancestors = list.prepend(ancestors, node.info)
 

@@ -1,7 +1,7 @@
-import roundabout/constant
-import roundabout/node.{Info, Node, SegLit, SegParam}
-import roundabout/parameter
-import roundabout/type_name
+import roundabout/internal/constant
+import roundabout/internal/node.{Info, Node, SegLit, SegParam}
+import roundabout/internal/parameter
+import roundabout/internal/type_name
 
 pub fn fixture_root() {
   Node(Info(type_name.unsafe(""), []), [

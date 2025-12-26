@@ -1,12 +1,11 @@
 import glam/doc.{type Document}
 import gleam/list
 import gleam/string
-import roundabout/common
-import roundabout/constant
-import roundabout/node.{type Info, type Node, SegLit, SegParam}
-import roundabout/parameter
+import roundabout/internal/common
+import roundabout/internal/constant
+import roundabout/internal/node.{type Info, type Node, SegLit, SegParam}
+import roundabout/internal/parameter
 
-@internal
 pub fn generate_route_to_path_rec(ancestors: List(Info), node: Node) -> Document {
   case list.is_empty(node.sub) {
     True -> doc.from_string("")
@@ -25,7 +24,6 @@ pub fn generate_route_to_path_rec(ancestors: List(Info), node: Node) -> Document
   }
 }
 
-@internal
 pub fn generate_route_to_path(ancestors: List(Info), node: Node) -> Document {
   let is_root = list.is_empty(ancestors)
   let next_ancestors = list.prepend(ancestors, node.info)
@@ -115,7 +113,6 @@ fn generate_route_to_path_case(
   |> doc.nest(2)
 }
 
-@internal
 pub fn get_branch_result(
   is_root: Bool,
   ancestors: List(Info),

@@ -1,5 +1,5 @@
 import gleam/result
-import roundabout/constant.{new, value}
+import roundabout/internal/constant.{new, value}
 
 pub fn valid_test() {
   assert new("clients") |> result.map(value) == Ok("clients")

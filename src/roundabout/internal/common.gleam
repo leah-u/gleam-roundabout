@@ -1,8 +1,8 @@
 import glam/doc
 import gleam/list
 import gleam/string
-import roundabout/node.{type Info}
-import roundabout/type_name
+import roundabout/internal/node.{type Info}
+import roundabout/internal/type_name
 
 pub const double_quote = "\""
 
@@ -25,7 +25,6 @@ pub fn case_arrow() {
   |> doc.append(doc.flex_break(" ", ""))
 }
 
-@internal
 pub fn get_function_name(ancestors: List(Info), info: Info) -> String {
   get_function_name_do([], ancestors, info)
   |> list.filter(fn(seg) { seg != "" })
@@ -47,7 +46,6 @@ fn get_function_name_do(
   }
 }
 
-@internal
 pub fn get_type_name(ancestors: List(Info), info: Info) -> String {
   get_type_name_do([], ancestors, info)
   |> string.join("")

@@ -1,10 +1,10 @@
 import birdie
 import glam/doc
-import roundabout/constant
-import roundabout/fixtures
-import roundabout/generate_route_to_path as subject
-import roundabout/node.{Info, Node}
-import roundabout/type_name
+import roundabout/internal/constant
+import roundabout/internal/fixtures
+import roundabout/internal/generate_route_to_path as subject
+import roundabout/internal/node.{Info, Node}
+import roundabout/internal/type_name
 
 pub fn get_branch_result_root_empty_test() {
   assert subject.get_branch_result(

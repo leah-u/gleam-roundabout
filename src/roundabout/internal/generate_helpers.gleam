@@ -2,12 +2,13 @@ import glam/doc.{type Document}
 import gleam/list
 import gleam/result
 import gleam/string
-import roundabout/common.{pipe_join}
-import roundabout/node.{type Info, type Node, type Segment, SegLit, SegParam}
-import roundabout/parameter
-import roundabout/type_name
+import roundabout/internal/common.{pipe_join}
+import roundabout/internal/node.{
+  type Info, type Node, type Segment, SegLit, SegParam,
+}
+import roundabout/internal/parameter
+import roundabout/internal/type_name
 
-@internal
 pub fn generate_helpers_rec(ancestors: List(Info), node: Node) -> Document {
   // Only leaf nodes are generated
   case list.is_empty(node.sub) {
@@ -107,7 +108,6 @@ fn generate_path_helper(ancestors: List(Info), cont: Node) -> Document {
   ])
 }
 
-@internal
 pub fn get_function_arguments(
   ancestors: List(Info),
   acc: List(Segment),

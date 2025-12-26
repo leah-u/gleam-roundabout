@@ -2,9 +2,11 @@ import glam/doc.{type Document}
 import gleam/list
 import gleam/option
 import gleam/string
-import roundabout/common
-import roundabout/node.{type Info, type Node, type Segment, SegLit, SegParam}
-import roundabout/parameter
+import roundabout/internal/common
+import roundabout/internal/node.{
+  type Info, type Node, type Segment, SegLit, SegParam,
+}
+import roundabout/internal/parameter
 
 /// Recursively generates route types like:
 ///
@@ -18,7 +20,6 @@ import roundabout/parameter
 ///   ...
 /// ```
 ///
-@internal
 pub fn generate_type_rec(ancestors: List(Info), node: Node) -> Document {
   case list.is_empty(node.sub) {
     True -> doc.from_string("")
@@ -36,7 +37,6 @@ pub fn generate_type_rec(ancestors: List(Info), node: Node) -> Document {
   }
 }
 
-@internal
 pub fn generate_type(ancestors: List(Info), node: Node) -> Document {
   let next_ancestors = list.prepend(ancestors, node.info)
 

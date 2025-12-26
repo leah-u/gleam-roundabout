@@ -1,10 +1,10 @@
 import birdie
 import glam/doc
-import roundabout/fixtures
-import roundabout/generate_types
-import roundabout/node.{Info, Node, SegParam}
-import roundabout/parameter
-import roundabout/type_name
+import roundabout/internal/fixtures
+import roundabout/internal/generate_types
+import roundabout/internal/node.{Info, Node, SegParam}
+import roundabout/internal/parameter
+import roundabout/internal/type_name
 
 pub fn generate_type_root_test() {
   let root = fixtures.fixture_root()
