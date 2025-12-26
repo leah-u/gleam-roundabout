@@ -1,4 +1,4 @@
-import generated/routes
+import examples/generated/routes
 import gleam/list
 import gleam/string
 

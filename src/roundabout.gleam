@@ -29,9 +29,9 @@ pub type Route {
 /// Generate the routes file
 ///
 /// ```
-/// roundabout.main(route_definitions, "src/generated/routes")
+/// roundabout.generate(route_definitions, "src/generated/routes")
 /// ```
-pub fn main(definitions: List(Route), output_path: String) {
+pub fn generate(definitions: List(Route), output_path: String) {
   use root <- result.try(parse(definitions))
 
   let output_path = case string.ends_with(output_path, ".gleam") {
