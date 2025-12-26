@@ -3,6 +3,7 @@ import glam/doc
 import gleam/list
 import gleam/result
 import gleam/set
+import gleam/string
 import justin
 import roundabout/internal/constant
 import roundabout/internal/generate_helpers
@@ -33,6 +34,11 @@ pub type Route {
 pub fn main(definitions: List(Route), output_path: String) {
   use root <- result.try(parse(definitions))
 
+  let output_path = case string.ends_with(output_path, ".gleam") {
+    True -> output_path
+    False -> output_path <> ".gleam"
+  }
+
   let types = generate_types.generate_type_rec([], root)
 
   let segments_to_route =
@@ -60,7 +66,7 @@ pub fn main(definitions: List(Route), output_path: String) {
 
   let output_dir = filepath.directory_name(output_path)
   let _ = simplifile.create_directory_all(output_dir)
-  let _ = simplifile.write(output_path <> ".gleam", generated_code)
+  let _ = simplifile.write(output_path, generated_code)
 
   Ok(Nil)
 }
