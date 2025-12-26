@@ -3,27 +3,11 @@ import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
+import roundabout/common.{case_arrow, double_quote, pipe_join}
 import roundabout/constant
 import roundabout/node.{type Info, type Node, type Segment, SegLit, SegParam}
 import roundabout/parameter
 import roundabout/type_name
-
-/// Join two strings with <>
-/// We allow breaking just before
-fn string_join() {
-  doc.flex_break(" ", "")
-  |> doc.append(doc.from_string("<> "))
-}
-
-fn pipe_join() {
-  doc.flex_break(" ", "")
-  |> doc.append(doc.from_string("|> "))
-}
-
-fn case_arrow() {
-  doc.from_string(" ->")
-  |> doc.append(doc.flex_break(" ", ""))
-}
 
 @internal
 pub fn generate_header() {
@@ -107,7 +91,7 @@ pub fn generate_type(ancestors: List(Info), node: Node) -> Document {
 ///   User(user_id: Int, sub: UserRoute)
 /// ```
 fn generate_type_variant(ancestors: List(Info), node: Node) -> Document {
-  let type_name = get_type_name(ancestors, node.info)
+  let type_name = common.get_type_name(ancestors, node.info)
 
   let sub = case list.is_empty(node.sub) {
     True -> option.None
@@ -185,11 +169,11 @@ pub fn generate_segments_to_route(ancestors: List(Info), node: Node) -> Document
     |> doc.append(doc.from_string("_ -> Error(Nil)"))
 
   let function_name =
-    [get_function_name(ancestors, node.info), "segments_to_route"]
+    [common.get_function_name(ancestors, node.info), "segments_to_route"]
     |> list.filter(fn(name) { !string.is_empty(name) })
     |> string.join("_")
 
-  let type_name = get_type_name(ancestors, node.info)
+  let type_name = common.get_type_name(ancestors, node.info)
 
   let pub_prefix = case list.is_empty(ancestors) {
     True -> "pub "
@@ -235,7 +219,8 @@ fn generate_segments_to_route_case(
     node.info.path
     |> list.map(fn(segment) {
       case segment {
-        SegLit(value) -> doc.from_string("\"" <> constant.value(value) <> "\"")
+        SegLit(value) ->
+          doc.from_string(double_quote <> constant.value(value) <> double_quote)
         SegParam(param) -> doc.from_string(parameter.name(param))
       }
     })
@@ -275,13 +260,15 @@ fn generate_segments_to_route_case(
 
   let right = case list.is_empty(node.sub) {
     True -> {
-      doc.from_string(get_type_name(ancestors, node.info) <> match_right_inner)
+      doc.from_string(
+        common.get_type_name(ancestors, node.info) <> match_right_inner,
+      )
       |> doc.append(pipe_join())
       |> doc.append(doc.from_string("Ok"))
     }
     False -> {
       let fn_name =
-        get_function_name(ancestors, node.info) <> "_segments_to_route"
+        common.get_function_name(ancestors, node.info) <> "_segments_to_route"
 
       doc.concat([
         doc.from_string(fn_name <> "(rest)"),
@@ -291,7 +278,7 @@ fn generate_segments_to_route_case(
           [
             doc.line,
             doc.from_string(
-              get_type_name(ancestors, node.info) <> match_right_inner,
+              common.get_type_name(ancestors, node.info) <> match_right_inner,
             ),
           ],
           2,
@@ -339,154 +326,6 @@ fn generate_segments_to_route_case(
 }
 
 @internal
-pub fn generate_route_to_path_rec(ancestors: List(Info), node: Node) -> Document {
-  case list.is_empty(node.sub) {
-    True -> doc.from_string("")
-    False -> {
-      let next_ancestors = list.prepend(ancestors, node.info)
-
-      let sub_types =
-        list.map(node.sub, fn(node) {
-          generate_route_to_path_rec(next_ancestors, node)
-        })
-
-      let this = generate_route_to_path(ancestors, node)
-
-      doc.concat(list.prepend(sub_types, this))
-    }
-  }
-}
-
-@internal
-pub fn generate_route_to_path(ancestors: List(Info), node: Node) -> Document {
-  let next_ancestors = list.prepend(ancestors, node.info)
-
-  let route_to_path_cases =
-    node.sub
-    |> list.map(generate_route_to_path_case(next_ancestors, _))
-    |> doc.join(doc.line)
-
-  let function_name =
-    [get_function_name(ancestors, node.info), "route_to_path"]
-    |> list.filter(fn(name) { !string.is_empty(name) })
-    |> string.join("_")
-
-  let pub_prefix = case list.is_empty(ancestors) {
-    True -> "pub "
-    False -> ""
-  }
-
-  doc.concat([
-    doc.from_string(
-      pub_prefix
-      <> "fn "
-      <> function_name
-      <> "(route: "
-      <> get_type_name(ancestors, node.info)
-      <> "Route) -> String {",
-    ),
-    doc.nest_docs(
-      [
-        doc.line,
-        doc.from_string("case route {"),
-        doc.nest_docs(
-          [
-            doc.line,
-            route_to_path_cases,
-          ],
-          2,
-        ),
-        doc.line,
-        doc.from_string("}"),
-      ],
-      2,
-    ),
-    doc.line,
-    doc.from_string("}"),
-    doc.lines(2),
-  ])
-}
-
-fn generate_route_to_path_case(ancestors: List(Info), node: Node) -> Document {
-  let variant_params =
-    node.info.path
-    |> list.filter_map(fn(seg) {
-      case seg {
-        SegLit(_) -> Error(Nil)
-        SegParam(param) -> {
-          param
-          |> parameter.name
-          |> Ok
-        }
-      }
-    })
-    |> fn(items) {
-      case list.is_empty(node.sub) {
-        True -> items
-        False -> list.append(items, ["sub"])
-      }
-    }
-
-  let variant_params_str = case list.is_empty(variant_params) {
-    True -> ""
-    False -> "(" <> string.join(variant_params, ", ") <> ")"
-  }
-
-  let forward_slash = doc.from_string("\"/\"")
-
-  let path =
-    forward_slash
-    |> fn(self) {
-      // If there are segments, add <>
-      case list.is_empty(node.info.path) {
-        True -> self
-        False ->
-          self
-          |> doc.append(string_join())
-      }
-    }
-    // Add the segments
-    |> doc.append(
-      list.map(node.info.path, fn(seg) {
-        case seg {
-          SegLit(value) -> {
-            doc.from_string("\"" <> constant.value(value) <> "/\"")
-          }
-          SegParam(param) -> {
-            let name = parameter.name(param)
-
-            case parameter.kind(param) {
-              parameter.Str -> doc.from_string(name)
-              parameter.Int -> {
-                doc.from_string("int.to_string(" <> name <> ")")
-              }
-            }
-          }
-        }
-      })
-      |> doc.join(string_join()),
-    )
-    // If there are children
-    // Add <> some_route_to_path(sub)
-    |> fn(self) {
-      case list.is_empty(node.sub) {
-        True -> self
-        False ->
-          self
-          |> doc.append(string_join())
-          |> doc.append(doc.from_string(
-            get_function_name(ancestors, node.info) <> "_route_to_path(sub)",
-          ))
-      }
-    }
-
-  doc.from_string(get_type_name(ancestors, node.info) <> variant_params_str)
-  |> doc.append(case_arrow())
-  |> doc.append(path)
-  |> doc.nest(2)
-}
-
-@internal
 pub fn generate_helpers_rec(ancestors: List(Info), node: Node) -> Document {
   // Only leaf nodes are generated
   case list.is_empty(node.sub) {
@@ -512,7 +351,7 @@ fn generate_helpers(ancestors: List(Info), node: Node) -> Document {
 }
 
 fn generate_route_helper(ancestors: List(Info), cont: Node) -> Document {
-  let function_name = get_function_name(ancestors, cont.info) <> "_route"
+  let function_name = common.get_function_name(ancestors, cont.info) <> "_route"
 
   let function_arguments =
     get_function_arguments(ancestors, [], cont.info)
@@ -540,7 +379,7 @@ fn generate_route_helper(ancestors: List(Info), cont: Node) -> Document {
 }
 
 fn generate_path_helper(ancestors: List(Info), cont: Node) -> Document {
-  let function_name_prefix = get_function_name(ancestors, cont.info)
+  let function_name_prefix = common.get_function_name(ancestors, cont.info)
   let route_function_name = function_name_prefix <> "_route"
   let path_function_name = function_name_prefix <> "_path"
 
@@ -671,7 +510,7 @@ fn generate_route_helper_body(
     False -> "(" <> string.join(params, ", ") <> ")"
   }
 
-  let type_name = get_type_name(ancestors, info)
+  let type_name = common.get_type_name(ancestors, info)
 
   let new_line = doc.from_string(type_name <> params)
 
@@ -688,47 +527,8 @@ fn generate_route_helper_body(
   }
 }
 
-@internal
-pub fn get_function_name(ancestors: List(Info), info: Info) -> String {
-  get_function_name_do([], ancestors, info)
-  |> list.filter(fn(seg) { seg != "" })
-  |> string.join("_")
-}
-
-fn get_function_name_do(
-  collected: List(String),
-  ancestors: List(Info),
-  info: Info,
-) {
-  let next = list.prepend(collected, type_name.snake(info.name))
-
-  case ancestors {
-    [next_ancestor, ..rest_ancestors] -> {
-      get_function_name_do(next, rest_ancestors, next_ancestor)
-    }
-    _ -> next
-  }
-}
-
-@internal
-pub fn get_type_name(ancestors: List(Info), info: Info) -> String {
-  get_type_name_do([], ancestors, info)
-  |> string.join("")
-}
-
-fn get_type_name_do(collected: List(String), ancestors: List(Info), info: Info) {
-  let next = list.prepend(collected, type_name.name(info.name))
-
-  case ancestors {
-    [next_ancestor, ..rest_ancestors] -> {
-      get_type_name_do(next, rest_ancestors, next_ancestor)
-    }
-    _ -> next
-  }
-}
-
 fn get_route_name(ancestors: List(Info), info: Info) -> String {
-  get_type_name(ancestors, info) <> "Route"
+  common.get_type_name(ancestors, info) <> "Route"
 }
 
 @internal

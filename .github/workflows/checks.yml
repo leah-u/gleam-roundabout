@@ -37,3 +37,6 @@ jobs:
 
       - name: Type check the example
         run: cd examples && gleam check
+
+      - name: Run tests in example
+        run: cd examples && gleam test

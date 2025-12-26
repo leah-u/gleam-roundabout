@@ -6,6 +6,7 @@ import gleam/set
 import justin
 import roundabout/constant
 import roundabout/generate
+import roundabout/generate_route_to_path
 import roundabout/node
 import roundabout/parameter
 import roundabout/type_name
@@ -28,7 +29,8 @@ pub fn main(definitions: List(Route), output_path: String) {
 
   let segments_to_route = generate.generate_segments_to_route_rec([], root)
 
-  let routes_to_path = generate.generate_route_to_path_rec([], root)
+  let routes_to_path =
+    generate_route_to_path.generate_route_to_path_rec([], root)
 
   let helpers = generate.generate_helpers_rec([], root)
 

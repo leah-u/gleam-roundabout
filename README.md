@@ -71,7 +71,7 @@ const routes = [
 ]
 
 pub fn main() -> Nil {
-    roundabout.main(routes, "src/generated/routes.gleam")
+  roundabout.main(routes, "src/generated/routes.gleam")
 }
 ```
 
@@ -164,8 +164,3 @@ pub fn handle(req: Request,, ctx: Context) {
 ---
 
 Further documentation can be found at <https://hexdocs.pm/roundabout>.
-
-## TODO
-
-- Generate example when pushing
-- Add test to ensure example type checks

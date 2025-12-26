@@ -2,6 +2,7 @@ import birdie
 import glam/doc
 import roundabout/constant
 import roundabout/generate
+import roundabout/generate_route_to_path
 import roundabout/node.{Info, Node, SegLit, SegParam}
 import roundabout/parameter
 import roundabout/type_name
@@ -36,26 +37,6 @@ fn root() {
     ),
   ])
   |> Ok
-}
-
-pub fn get_type_name_test() {
-  let actual =
-    generate.get_type_name(
-      [Info(name: type_name.unsafe("Client"), path: [])],
-      Info(name: type_name.unsafe("SimpleUser"), path: []),
-    )
-
-  assert actual == "ClientSimpleUser"
-}
-
-pub fn get_function_name_test() {
-  let actual =
-    generate.get_function_name(
-      [Info(name: type_name.unsafe("Client"), path: [])],
-      Info(name: type_name.unsafe("SimpleUser"), path: []),
-    )
-
-  assert actual == "client_simple_user"
 }
 
 pub fn generate_imports_test() {
@@ -134,7 +115,7 @@ pub fn generate_route_to_path_root_test() {
   let assert Ok(root) = root()
 
   let actual =
-    generate.generate_route_to_path([], root)
+    generate_route_to_path.generate_route_to_path([], root)
     |> doc.to_string(80)
 
   actual
@@ -145,7 +126,7 @@ pub fn generate_route_to_path_rec_test() {
   let assert Ok(root) = root()
 
   let actual =
-    generate.generate_route_to_path_rec([], root)
+    generate_route_to_path.generate_route_to_path_rec([], root)
     |> doc.to_string(80)
 
   actual

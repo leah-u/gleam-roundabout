@@ -4,6 +4,9 @@ example-gen:
 example-check:
     cd examples && gleam check
 
+example-test:
+    cd examples && gleam test
+
 snaps:
     gleam run -m birdie
 
