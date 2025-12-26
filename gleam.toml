@@ -1,9 +1,9 @@
 name = "roundabout"
-version = "0.3.0"
+version = "0.4.0"
 
 description = "A routes generator"
 licences = ["MIT"]
-repository = { type = "github", user = "sporto", repo = "https://github.com/sporto/gleam-route-gen" }
+repository = { type = "github", user = "sporto", repo = "gleam-roundabout" }
 
 [dependencies]
 gleam_stdlib = ">= 0.44.0 and < 2.0.0"
