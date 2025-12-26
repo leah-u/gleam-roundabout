@@ -2,6 +2,16 @@ name = "examples"
 version = "1.0.0"
 description = "Route generation example"
 
+[tools.roundabout."examples/generated/routes"]
+home = ""
+profile = "profile/{id:String}"
+my_orders = "my-orders"
+order = "orders/{id:Int}"
+comment = "posts/{postId:Int}/comments/{commentId:Int}"
+user.__prefix = "users/{id:Int}"
+user.show = ""
+user.activate = "new"
+
 [dependencies]
 roundabout = { path = ".." }
 gleam_stdlib = ">= 0.44.0 and < 2.0.0"

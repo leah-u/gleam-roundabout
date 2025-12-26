@@ -1,5 +1,7 @@
 import filepath
 import glam/doc
+import gleam/bool
+import gleam/dict
 import gleam/list
 import gleam/result
 import gleam/set
@@ -15,6 +17,7 @@ import roundabout/internal/node
 import roundabout/internal/parameter
 import roundabout/internal/type_name
 import simplifile
+import tom
 
 pub type Segment {
   Lit(val: String)
@@ -24,6 +27,113 @@ pub type Segment {
 
 pub type Route {
   Route(name: String, path: List(Segment), sub: List(Route))
+}
+
+pub fn main() {
+  let root = find_root("./")
+  let src_path = filepath.join(root, "src")
+  let assert Ok(gleam_toml) = simplifile.read(filepath.join(root, "gleam.toml"))
+    as "Could not read 'gleam.toml'"
+
+  let assert Ok(gleam_toml) = tom.parse(gleam_toml)
+    as "Could not parse
+  'gleam.toml'"
+  let assert Ok(config) = tom.get_table(gleam_toml, ["tools", "roundabout"])
+    as "Could not find the [tools.roundabout] section in 'gleam.toml'"
+  let routers =
+    dict.to_list(config)
+    |> list.map(fn(router) {
+      let #(router, config) = router
+      let file = filepath.join(src_path, router)
+      let file = case filepath.extension(file) {
+        Error(Nil) -> file <> ".gleam"
+        Ok(_) ->
+          panic as {
+            "Router may not contain a file extension: "
+            <> router
+            <> "\nUse '"
+            <> filepath.strip_extension(router)
+            <> "' instead"
+          }
+      }
+      let assert Ok(routes) = tom.as_table(config)
+        as "Router must be a TOML
+      table"
+      let routes =
+        dict.to_list(routes)
+        |> list.map(parse_route)
+      #(file, routes)
+    })
+
+  list.each(routers, fn(router) {
+    let #(output_path, definitions) = router
+    echo output_path
+    echo definitions
+    let assert Ok(_) = generate(definitions, output_path)
+  })
+}
+
+fn parse_path(path: String) -> Result(List(Segment), Nil) {
+  use <- bool.guard(when: path == "", return: Ok([]))
+
+  string.split(path, "/")
+  |> list.try_map(fn(segment) {
+    case segment {
+      "{" <> rest -> {
+        case string.split(rest, ":") {
+          [name, type_] -> {
+            use <- bool.guard(
+              when: !string.ends_with(type_, "}"),
+              return: Error(Nil),
+            )
+            let type_ = string.drop_end(type_, 1)
+            case type_ {
+              "String" -> Ok(Str(name))
+              "Int" -> Ok(Int(name))
+              _ -> Error(Nil)
+            }
+          }
+          _ -> Error(Nil)
+        }
+      }
+      _ -> Ok(Lit(segment))
+    }
+  })
+}
+
+fn parse_route(route: #(String, tom.Toml)) -> Route {
+  let #(name, config) = route
+  case config {
+    tom.InlineTable(table) | tom.Table(table) -> {
+      let prefix = case tom.get_string(table, ["__prefix"]) {
+        Ok(prefix) -> prefix
+        Error(tom.NotFound(..)) -> ""
+        Error(tom.WrongType(..)) -> panic as "__prefix must be a string"
+      }
+      let assert Ok(path) = parse_path(prefix)
+        as { "Invalid path: '" <> prefix <> "'" }
+      let sub_routes =
+        dict.delete(table, "__prefix")
+        |> dict.to_list
+        |> list.map(parse_route)
+
+      Route(name:, path:, sub: sub_routes)
+    }
+    tom.String(path) -> {
+      let assert Ok(path) = parse_path(path)
+        as { "Invalid path: '" <> path <> "'" }
+      let sub = []
+      Route(name:, path:, sub:)
+    }
+    _ -> panic as { "Unexpected value" }
+  }
+}
+
+fn find_root(path: String) -> String {
+  case simplifile.is_file(filepath.join(path, "gleam.toml")) {
+    Ok(True) -> path
+    Ok(False) | Error(_) -> find_root(filepath.join(path, "../"))
+  }
 }
 
 /// Generate the routes file
