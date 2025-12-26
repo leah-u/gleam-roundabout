@@ -12,12 +12,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "27.1.2"
           gleam-version: "1.13.0"
           rebar3-version: "3"
           # elixir-version: "1"
+          #
       - run: gleam deps download
+
       - run: gleam test
+
       - run: gleam format --check src test
+
+      - name: Download example deps
+        run: cd examples && gleam deps download
+
+      - name: Generate example
+        run: cd examples && gleam run -m gen_routes
+
+      - name: Check example is the same as committed
+        run: git diff --exit-code
+
+      - name: Type check the example
+        run: cd examples && gleam check
